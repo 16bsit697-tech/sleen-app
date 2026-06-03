@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sleen - Real-time Business Customer Connection Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        
+        /* Scrolling Banner */
+        .scrolling-banner {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+        .scrolling-text {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+            font-weight: 500;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .scrolling-text span { margin: 0 40px; font-size: 1.1rem; }
+        
+        /* Hero */
+        .hero {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: "✨";
+            position: absolute;
+            font-size: 300px;
+            opacity: 0.1;
+            bottom: -80px;
+            right: -50px;
+        }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 20px; line-height: 1.2; }
+        .hero p { font-size: 1.2rem; opacity: 0.95; }
+        
+        /* How it works */
+        .how-it-works { padding: 100px 0; background: #f8f9fa; text-align: center; }
+        .how-it-works h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; }
+        .step-box { 
+            padding: 40px 30px; 
+            background: white; 
+            border-radius: 20px; 
+            margin: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .step-box:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        .step-icon { font-size: 3rem; color: #667eea; margin-bottom: 20px; }
+        .step-box h4 { font-size: 1.5rem; margin-bottom: 15px; }
+        
+        /* Testimonials */
+        .testimonials { padding: 100px 0; background: white; text-align: center; }
+        .testimonials h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; }
+        .testimonial-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 35px;
+            margin: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid #eee;
+        }
+        .testimonial-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        .testimonial-card i { font-size: 3rem; color: #667eea; opacity: 0.5; margin-bottom: 20px; }
+        .testimonial-card p { font-size: 1rem; line-height: 1.6; color: #555; }
+        .testimonial-card h5 { margin-top: 20px; color: #333; }
+        .rating { color: #ffc107; margin-top: 10px; }
+        
+        /* Coming Soon */
+        .coming-soon {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        .coming-soon h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 50px; }
+        .soon-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 15px;
+            transition: all 0.3s;
+        }
+        .soon-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.15); }
+        .soon-card i { font-size: 4rem; margin-bottom: 20px; color: #ff6b6b; }
+        .soon-card h4 { font-size: 1.5rem; margin-bottom: 15px; }
+        
+        /* Footer */
+        .footer { background: #1a1a2e; color: white; padding: 60px 0 30px; text-align: center; }
+        .footer h5 { margin-bottom: 20px; }
+        .footer a { color: #ccc; text-decoration: none; transition: color 0.3s; }
+        .footer a:hover { color: #667eea; }
+        .social-icons a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+            transition: all 0.3s;
+            color: white;
+        }
+        .social-icons a:hover { background: #667eea; transform: translateY(-3px); }
+        
+        /* Navbar */
+        .navbar { background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); padding: 15px 0; }
+        .navbar-brand { font-size: 1.5rem; font-weight: bold; }
+        
+        /* Feature Banner */
+        .feature-banner {
+            background: #667eea;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .how-it-works h2 { font-size: 1.8rem; }
+            .testimonials h2 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-bullhorn"></i> Sleen
+            </a>
+            <div>
+                <a href="/login" class="btn btn-outline-light btn-sm">Login</a>
+                <a href="/register" class="btn btn-light btn-sm ms-2">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Scrolling Banner -->
+    <div class="scrolling-banner" style="margin-top: 70px;">
+        <div class="scrolling-text">
+            <span>🚀 Sleen provides your business on-demand and real-time connection to your customers</span>
+            <span>⚡ User-friendly, fast and excellent solution to mitigate customer traffic in real time</span>
+            <span>📈 Proven results on Customer Traffic, Loyalty and Satisfaction</span>
+            <span>🤖 Future plans: AI automation and mobile versions in development</span>
+            <span>🎯 Get started today - Connect with your customers instantly</span>
+            <span>💡 Real-time promotions, instant engagement, better results</span>
+            <span>🚀 Sleen provides your business on-demand and real-time connection to your customers</span>
+            <span>⚡ User-friendly, fast and excellent solution to mitigate customer traffic in real time</span>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-7">
+                    <h1>Connect With Your Customers<br>In Real-Time</h1>
+                    <p class="lead mb-4">Sleen provides your business on-demand and real-time connection to your customers. User-friendly, fast and excellent solution to mitigate customer traffic in real time. With proven results on Customer Traffic, Loyalty and Satisfaction.</p>
+                    <div class="d-flex gap-3">
+                        <a href="/register" class="btn btn-light btn-lg px-4">Get Started <i class="fas fa-arrow-right ms-2"></i></a>
+                        <a href="#how-it-works" class="btn btn-outline-light btn-lg px-4">Learn More</a>
+                    </div>
+                </div>
+                <div class="col-lg-5 text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/1087/1087840.png" alt="Customer Connection" class="img-fluid" style="filter: drop-shadow(0 15px 25px rgba(0,0,0,0.2)); max-width: 80%;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Banner -->
+    <div class="feature-banner">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h3>5000+</h3>
+                    <p>Businesses Served</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>100K+</h3>
+                    <p>Customers Reached</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>98%</h3>
+                    <p>Satisfaction Rate</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>24/7</h3>
+                    <p>Real-time Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Diagram -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p class="text-muted mb-5">Simple three-step process to engage your customers</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="step-box">
+                        <div class="step-number">1</div>
+                        <i class="fas fa-envelope step-icon"></i>
+                        <h4>Create Your Message</h4>
+                        <p>What coupon or promotion do you want to send to customers? Write your message.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-box">
+                        <div class="step-number">2</div>
+                        <i class="fas fa-laptop step-icon"></i>
+                        <h4>Create Promotion</h4>
+                        <p>Enter your promotion details in the business dashboard.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step-box">
+                        <div class="step-number">3</div>
+                        <i class="fas fa-bell step-icon"></i>
+                        <h4>Send to Customers</h4>
+                        <p>Messages get sent to customers instantly in real-time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+                <!-- Reviews Section -->
+    <section class="reviews-section" style="padding: 80px 0; background: white;">
+        <div class="container">
+            <div class="section-title text-center mb-5">
+                <h2>What Our Customers Say ⭐</h2>
+                <p>Find Reviews from the Business Owners</p>
+                <div style="width: 80px; height: 4px; background: linear-gradient(135deg, #667eea, #764ba2); margin: 20px auto;"></div>
+            </div>
+            <div class="row" id="reviews-container">
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading reviews...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Load reviews dynamically
+        async function loadReviews() {
+            try {
+                const res = await fetch('/api/reviews');
+                const reviews = await res.json();
+                const container = document.getElementById('reviews-container');
+                if(!container) return;
+                
+                if(reviews.length === 0) {
+                    container.innerHTML = '<div class="col-12 text-center"><p class="text-muted">No reviews yet. Be the first to write one!</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                for(let review of reviews.slice(0, 6)) {
+                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 mb-4';
+                    col.innerHTML = `
+                        <div class="card h-100 shadow-sm" style="border-radius: 15px;">
+                            <div class="card-body">
+                                <div class="text-warning mb-2">${stars}</div>
+                                <p class="card-text">"${escapeHtml(review.comment)}"</p>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <strong>${escapeHtml(review.first_name)} ${escapeHtml(review.last_name)}</strong>
+                                    <small class="text-muted">${review.business_name}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(col);
+                }
+            } catch(e) {
+                console.error('Error loading reviews:', e);
+            }
+        }
+        
+        function escapeHtml(text) {
+            if(!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        loadReviews();
+    </script>
+
+    <!-- Coming Soon -->
+    <section class="coming-soon">
+        <div class="container">
+            <h2>Coming Soon</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="soon-card">
+                        <i class="fas fa-robot"></i>
+                        <h4>Personal AI Agents</h4>
+                        <p>Automated customer engagement, smart promotions, and intelligent responses powered by advanced AI technology coming soon.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="soon-card">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mobile Versions</h4>
+                        <p>Native iOS and Android apps coming soon. Manage your business on the go with our mobile platform.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5><i class="fas fa-bullhorn"></i> Sleen</h5>
+                    <p>Real-time business customer connection platform. Fast, elegant, and effective marketing solutions.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="/login">Login</a></li>
+                        <li><a href="/register">Register</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Refund Policy</a></li>
+                        <li><a href="#">Disclaimer</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-secondary">
+            <div class="row">
+                <div class="col-12">
+                    <p>Sleen Inc. 2025 - All Rights Reserved</p>
+                                   </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if(target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        // Navbar background change on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if(window.scrollY > 100) {
+                navbar.style.background = 'rgba(26, 26, 46, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(26, 26, 46, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>

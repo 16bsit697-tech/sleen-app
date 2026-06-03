@@ -1,0 +1,256 @@
+================================================================================
+SLEEN PLATFORM - COMPLETE DATA EXPORT
+Export Date: 2026-06-03 12:39:57.367384
+================================================================================
+
+SUMMARY
+----------------------------------------
+Total Users: 4
+Total Messages: 15
+Total Reviews: 2
+Total Tips: 2
+
+
+================================================================================
+USERS AND CARD INFORMATION
+================================================================================
+
+User ID: 5
+Name: Aidan Lab
+Email: aidan@gmail.com
+Business: Aidanlab
+Address: USA, 
+CARD INFO:
+   Card Holder: Aidanlab
+   Card Number: 2222 3333 9999 0000
+   CVV: 123
+   Expiry: 12/30
+   Zip Code: 1100998
+Registered: 2026-06-03 07:33:02
+----------------------------------------
+
+User ID: 4
+Name: Mori Jemmah
+Email: mori@gmail.com
+Business: Morijemmah
+Address: USA, Washington
+CARD INFO:
+   Card Holder: Mori Jemmah
+   Card Number: 1111 2222 3333 4444
+   CVV: 123
+   Expiry: 12/30
+   Zip Code: 1001100
+Registered: 2026-06-03 06:34:23
+----------------------------------------
+
+User ID: 3
+Name: Josh Nelson
+Email: josh@gmail.com
+Business: Cloths
+Address: USA, Washangton
+CARD INFO:
+   Card Holder: Credit Card
+   Card Number: 2222 3333 4444 5555
+   CVV: 345
+   Expiry: 12/30
+   Zip Code: 990099
+Registered: 2026-05-16 08:32:23
+----------------------------------------
+
+User ID: 2
+Name: joseph Hosan
+Email: joseph@gmail.com
+Business: Iron
+Address: UK
+CARD INFO:
+   Card Holder: Debit Card
+   Card Number: 1111 2222 3333 4444
+   CVV: 123
+   Expiry: 12/30
+   Zip Code: 331100
+Registered: 2026-05-16 07:50:56
+----------------------------------------
+
+================================================================================
+MESSAGES
+================================================================================
+
+Message ID: 15
+From: Aidan Lab (Aidanlab)
+Message: Hell Aidanlab, Thank You for contacting with us.
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-06-03 07:35:07
+----------------------------------------
+
+Message ID: 14
+From: Mori Jemmah (Morijemmah)
+Message: This is what?
+Critical: YES
+From Admin: NO
+Deleted: NO
+Image: 4_1780471844.323995_ChatGPT_Image_May_24_2026_06_09_56_PM.png
+Date: 2026-06-03 07:30:44
+----------------------------------------
+
+Message ID: 13
+From: Mori Jemmah (Morijemmah)
+Message: hay
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-06-03 07:27:00
+----------------------------------------
+
+Message ID: 12
+From: Admin Sleen (Sleen Inc)
+Message: hello
+Critical: NO
+From Admin: NO
+Deleted: NO
+Date: 2026-06-03 07:05:33
+----------------------------------------
+
+Message ID: 11
+From: Mori Jemmah (Morijemmah)
+Message: hay
+Critical: NO
+From Admin: YES
+Deleted: YES
+Date: 2026-06-03 06:57:39
+----------------------------------------
+
+Message ID: 10
+From: Mori Jemmah (Morijemmah)
+Message: hello
+Critical: NO
+From Admin: NO
+Deleted: NO
+Date: 2026-06-03 06:40:14
+----------------------------------------
+
+Message ID: 9
+From: Mori Jemmah (Morijemmah)
+Message: hay Admin
+Critical: NO
+From Admin: NO
+Deleted: NO
+Date: 2026-06-03 06:35:04
+----------------------------------------
+
+Message ID: 8
+From: Josh Nelson (Cloths)
+Message: Thank you so much for your generous tip of $100! We really appreciate your support. 🙏
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-05-16 08:34:41
+----------------------------------------
+
+Message ID: 7
+From: Josh Nelson (Cloths)
+Message: hi dear Josh
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-05-16 08:34:33
+----------------------------------------
+
+Message ID: 6
+From: Josh Nelson (Cloths)
+Message: This is our design
+Critical: NO
+From Admin: NO
+Deleted: NO
+Image: 3_1778920403.483046_1.Visio.jpg
+Date: 2026-05-16 08:33:23
+----------------------------------------
+
+Message ID: 5
+From: Josh Nelson (Cloths)
+Message: hi dear admin
+Critical: NO
+From Admin: NO
+Deleted: NO
+Date: 2026-05-16 08:32:52
+----------------------------------------
+
+Message ID: 4
+From: joseph Hosan (Iron)
+Message: Thank you so much for your generous tip of $10! We really appreciate your support. 🙏
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-05-16 08:22:04
+----------------------------------------
+
+Message ID: 3
+From: joseph Hosan (Iron)
+Message: yes, I am fine, how are you?
+
+Critical: YES
+From Admin: NO
+Deleted: NO
+Date: 2026-05-16 08:11:11
+----------------------------------------
+
+Message ID: 2
+From: joseph Hosan (Iron)
+Message: hay Joseph, how are you?
+Critical: NO
+From Admin: YES
+Deleted: NO
+Date: 2026-05-16 08:10:48
+----------------------------------------
+
+Message ID: 1
+From: joseph Hosan (Iron)
+Message: Hi Dear, I am adding Tips
+Critical: NO
+From Admin: NO
+Deleted: NO
+Image: 2_1778917916.2166_2.jpg
+Date: 2026-05-16 07:51:56
+----------------------------------------
+
+================================================================================
+REVIEWS
+================================================================================
+
+Review ID: 2
+From: Aidan Lab (Aidanlab)
+Rating: 5/5 ★★★★★
+Comment: Yes, this is real plateform to pay the payments online, we feel really well to make business with this platform
+Date: 2026-06-03 07:34:04
+----------------------------------------
+
+Review ID: 1
+From: Mori Jemmah (Morijemmah)
+Rating: 5/5 ★★★★★
+Comment: We found this plateform perfect
+Date: 2026-06-03 06:45:23
+----------------------------------------
+
+================================================================================
+TIPS
+================================================================================
+
+Tip ID: 2
+From: Josh Nelson (Cloths)
+Amount: $100.0
+Message: This is tip from my side
+Date: 2026-05-16 08:33:41
+----------------------------------------
+
+Tip ID: 1
+From: joseph Hosan (Iron)
+Amount: $10.0
+Message: got it
+Date: 2026-05-16 07:52:13
+----------------------------------------
+
+
+================================================================================
+END OF EXPORT
+================================================================================

