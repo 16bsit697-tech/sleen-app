@@ -139,7 +139,7 @@
         .navbar { background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px); padding: 15px 0; }
         .navbar-brand { font-size: 1.5rem; font-weight: bold; }
         
-        /* Feature Banner */
+        /* Feature Banner - UPDATED */
         .feature-banner {
             background: #667eea;
             color: white;
@@ -147,10 +147,172 @@
             text-align: center;
         }
         
+        /* Carousel Styles - NEW */
+        .carousel-section {
+            padding: 60px 0;
+            background: #f8f9fa;
+        }
+        .carousel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+        .slide {
+            min-width: 100%;
+            position: relative;
+        }
+        .slide img {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+        .slide-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 40px 30px 20px;
+            text-align: center;
+        }
+        .slide-caption h4 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        .slide-caption p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .carousel-btn:hover {
+            background: rgba(0,0,0,0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .carousel-btn.prev { left: 20px; }
+        .carousel-btn.next { right: 20px; }
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dot.active {
+            background: white;
+            transform: scale(1.2);
+        }
+        
+        /* Trust Badge - NEW */
+        .trust-badge-section {
+            padding: 50px 0;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            text-align: center;
+        }
+        .trust-badge {
+            display: inline-block;
+        }
+        .trust-badge-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            margin: 0 auto;
+            border: 4px solid white;
+        }
+        .trust-badge-circle span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .trust-badge-circle strong {
+            font-size: 22px;
+            margin: 5px 0;
+        }
+        .trust-badge-circle small {
+            font-size: 11px;
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+        
+        /* Review Cards - Updated */
+        .review-card {
+            border-radius: 15px;
+            border: none;
+            transition: all 0.3s;
+            height: 100%;
+        }
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important;
+        }
+        .review-verified {
+            background: #667eea;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .review-location {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
             .how-it-works h2 { font-size: 1.8rem; }
             .testimonials h2 { font-size: 1.8rem; }
+            .slide img { height: 300px; }
+            .carousel-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            .carousel-btn.prev { left: 10px; }
+            .carousel-btn.next { right: 10px; }
+            .trust-badge-circle {
+                width: 140px;
+                height: 140px;
+            }
+            .trust-badge-circle strong { font-size: 18px; }
         }
     </style>
 </head>
@@ -202,25 +364,68 @@
         </div>
     </section>
 
-    <!-- Feature Banner -->
+    <!-- IMAGE CAROUSEL - NEW -->
+    <section class="carousel-section">
+        <div class="container">
+            <h2 class="text-center mb-4" style="font-weight: 700;">Our Platform in Action</h2>
+            <p class="text-center text-muted mb-4">See how Sleen helps local businesses in Anaheim grow</p>
+            <div class="carousel-container">
+                <div class="carousel-slides">
+                    <!-- Slide 1 -->
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/slide1.jpeg') }}" alt="Customer Dashboard">
+                        <div class="slide-caption">
+                            <h4>Real-time Customer Dashboard</h4>
+                            <p>Track and manage customer interactions instantly from Anaheim to everywhere</p>
+                        </div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/slide2.jpeg') }}" alt="Promotion Management">
+                        <div class="slide-caption">
+                            <h4>Easy Promotion Creation</h4>
+                            <p>Create and send promotions to your customers in just a few clicks</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="slide">
+                        <img src="{{ url_for('static', filename='images/slide3.jpeg') }}" alt="Analytics Dashboard">
+                        <div class="slide-caption">
+                            <h4>Analytics & Insights</h4>
+                            <p>Track your customer engagement and campaign performance in real-time</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+                <button class="carousel-btn next" onclick="changeSlide(1)">&#10095;</button>
+                <div class="carousel-dots">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                    <span class="dot" onclick="goToSlide(2)"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Banner - UPDATED STATS -->
     <div class="feature-banner">
         <div class="container">
             <div class="row">
                 <div class="col-md-3">
-                    <h3>5000+</h3>
+                    <h3>20+</h3>
                     <p>Businesses Served</p>
                 </div>
                 <div class="col-md-3">
-                    <h3>100K+</h3>
+                    <h3>5,000+</h3>
                     <p>Customers Reached</p>
                 </div>
                 <div class="col-md-3">
-                    <h3>98%</h3>
+                    <h3>95%</h3>
                     <p>Satisfaction Rate</p>
                 </div>
                 <div class="col-md-3">
                     <h3>24/7</h3>
-                    <p>Real-time Support</p>
+                    <p>Real Support</p>
                 </div>
             </div>
         </div>
@@ -260,72 +465,191 @@
         </div>
     </section>
 
-                <!-- Reviews Section -->
+       <!-- REVIEWS SECTION - UPDATED WITH NAMES & ICONS ABOVE -->
     <section class="reviews-section" style="padding: 80px 0; background: white;">
         <div class="container">
             <div class="section-title text-center mb-5">
                 <h2>What Our Customers Say ⭐</h2>
-                <p>Find Reviews from the Business Owners</p>
+                <p>Real reviews from Anaheim business owners</p>
                 <div style="width: 80px; height: 4px; background: linear-gradient(135deg, #667eea, #764ba2); margin: 20px auto;"></div>
             </div>
-            <div class="row" id="reviews-container">
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading reviews...</span>
+            <div class="row">
+                <!-- Review 1 - Taco Land -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    TL
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Taco Land</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">2235 West Lincoln Ave, Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Incredible customer reach! We connected with 500+ new customers in just 2 weeks. The platform is so easy to use. <strong>Nick and James</strong> are an absolute pleasure to work with - they really care about local businesses. The turnaround time is amazing!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 - Abu Omar Halal -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #f093fb, #f5576c); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    AH
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Abu Omar Halal</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Sleen has been a game-changer for Abu Omar Halal. Our customer engagement increased by 200%! The turnaround time is incredible - we see results within hours. <strong>Nick and James</strong> provide exceptional 24/7 support."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 - Pastaphony -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    PA
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Pastaphony</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Working with <strong>Nick and James</strong> is amazing! Pastaphony saw a massive boost in customer traffic within the first week. The platform's reach is phenomenal and the onboarding process was seamless. Highly recommend to any local restaurant!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 4 - Tacos Los Cholos -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #fa709a, #fee140); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    TC
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Tacos Los Cholos</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Best decision for Tacos Los Cholos! Our customer turnaround time improved by 80%. <strong>Nick and James</strong> are absolute professionals who truly understand the needs of local businesses. The customer reach has been outstanding!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 5 - The Kroft -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    TK
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">The Kroft</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"The Kroft's customer reach has doubled since using Sleen. The platform is user-friendly and the support from <strong>Nick and James</strong> is unparalleled. The turnaround time on promotions is lightning fast - we're seeing consistent growth every week!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 6 - MasalaCraft -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #ffecd2, #fcb69f); color: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    MC
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">MasalaCraft - Anaheim</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"MasalaCraft reached 1,000+ customers in the first month! <strong>Nick and James</strong> are wonderful to work with - always responsive, helpful, and genuinely invested in our success. Amazing results in record time with exceptional customer reach!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 7 - Lazeez Eats -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #89f7fe, #66a6ff); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    LE
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Lazeez Eats</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Lazeez Eats saw immediate results with Sleen! Our repeat customer rate went up significantly. The engagement tools are fantastic and <strong>Nick & James</strong> made the whole process effortless. The turnaround time on promotions is unbeatable!"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 8 - Aleppo's Kitchen -->
+                <div class="col-md-6 mb-4">
+                    <div class="card review-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #fccb90, #d57eeb); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0;">
+                                    AK
+                                </div>
+                                <div>
+                                    <h5 class="mb-0" style="font-weight: 700;">Aleppo's Kitchen</h5>
+                                    <div style="font-size: 0.8rem; color: #666;">Anaheim, CA</div>
+                                </div>
+                                <span class="review-verified ms-auto">Verified</span>
+                            </div>
+                            <div class="text-warning mb-2">★★★★★</div>
+                            <p class="card-text" style="font-size: 0.95rem;">"Aleppo's Kitchen never thought we could reach so many customers! The platform is incredibly effective and <strong>Nick and James</strong> are always there to help. The customer reach and engagement we've seen is phenomenal. 10/10 would recommend!"</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <script>
-        // Load reviews dynamically
-        async function loadReviews() {
-            try {
-                const res = await fetch('/api/reviews');
-                const reviews = await res.json();
-                const container = document.getElementById('reviews-container');
-                if(!container) return;
-                
-                if(reviews.length === 0) {
-                    container.innerHTML = '<div class="col-12 text-center"><p class="text-muted">No reviews yet. Be the first to write one!</p></div>';
-                    return;
-                }
-                
-                container.innerHTML = '';
-                for(let review of reviews.slice(0, 6)) {
-                    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4 mb-4';
-                    col.innerHTML = `
-                        <div class="card h-100 shadow-sm" style="border-radius: 15px;">
-                            <div class="card-body">
-                                <div class="text-warning mb-2">${stars}</div>
-                                <p class="card-text">"${escapeHtml(review.comment)}"</p>
-                                <hr>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <strong>${escapeHtml(review.first_name)} ${escapeHtml(review.last_name)}</strong>
-                                    <small class="text-muted">${review.business_name}</small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(col);
-                }
-            } catch(e) {
-                console.error('Error loading reviews:', e);
-            }
-        }
-        
-        function escapeHtml(text) {
-            if(!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        loadReviews();
-    </script>
+    <!-- TRUST BADGE - NEW -->
+    <section class="trust-badge-section">
+        <div class="container">
+            <div class="trust-badge">
+                <div class="trust-badge-circle">
+                    <span>Trusted by</span>
+                    <strong>OCC IC</strong>
+                    <small>(OC Cyber Innovation Clinic)</small>
+                </div>
+            </div>
+            <p style="margin-top: 20px; color: #666; font-weight: 500;">Proudly trusted by local businesses across Anaheim, California</p>
+        </div>
+    </section>
 
     <!-- Coming Soon -->
     <section class="coming-soon">
@@ -348,14 +672,15 @@
                 </div>
             </div>
         </div>
-    
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <h5><i class="fas fa-bullhorn"></i> Sleen</h5>
-                    <p>Real-time business customer connection platform. Fast, elegant, and effective marketing solutions.</p>
+                    <p>Real-time business customer connection platform. Fast, elegant, and effective marketing solutions for Anaheim businesses.</p>
                     <div class="social-icons">
                         <a href="#"><i class="fab fa-facebook-f"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -386,7 +711,7 @@
             <div class="row">
                 <div class="col-12">
                     <p>Sleen Inc. 2025 - All Rights Reserved</p>
-                                   </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -413,6 +738,50 @@
                 navbar.style.background = 'rgba(26, 26, 46, 0.95)';
             }
         });
+
+        // CAROUSEL FUNCTIONALITY - NEW
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+        let autoPlay;
+
+        function changeSlide(direction) {
+            const totalSlides = slides.length;
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const slidesContainer = document.querySelector('.carousel-slides');
+            slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+            
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Auto-play
+        function startAutoPlay() {
+            autoPlay = setInterval(() => {
+                changeSlide(1);
+            }, 5000);
+        }
+
+        function stopAutoPlay() {
+            clearInterval(autoPlay);
+        }
+
+        // Hover pause
+        document.querySelector('.carousel-container')?.addEventListener('mouseenter', stopAutoPlay);
+        document.querySelector('.carousel-container')?.addEventListener('mouseleave', startAutoPlay);
+
+        // Start auto-play
+        startAutoPlay();
     </script>
 </body>
 </html>
