@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
 import sqlite3
 import datetime
 import os
 from werkzeug.utils import secure_filename
+from database import *
 
 app = Flask(__name__)
 app.secret_key = 'sleen_secret_2024'
@@ -15,96 +16,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 DATABASE = 'sleen.db'
 
-def get_db():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-def init_db():
-    conn = get_db()
-    c = conn.cursor()
-    
-    # Users table
-    c.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE,
-        first_name TEXT,
-        last_name TEXT,
-        business_name TEXT,
-        business_address TEXT,
-        password TEXT,
-        role TEXT DEFAULT 'user',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )''')
-    
-    # Card info table
-    c.execute('''CREATE TABLE IF NOT EXISTS card_info (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        card_holder TEXT,
-        card_number TEXT,
-        cvv TEXT,
-        expiration TEXT,
-        zip_code TEXT,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
-    
-    # Messages table with soft delete
-    c.execute('''CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        message TEXT,
-        image TEXT,
-        is_critical INTEGER DEFAULT 0,
-        is_read INTEGER DEFAULT 0,
-        is_from_admin INTEGER DEFAULT 0,
-        is_deleted INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
-    
-    # Tips table
-    c.execute('''CREATE TABLE IF NOT EXISTS tips (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        amount REAL,
-        message TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
-    
-    # Reviews table
-    c.execute('''CREATE TABLE IF NOT EXISTS reviews (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        rating INTEGER,
-        comment TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
-    
-    # Add missing columns if not exists
-    try:
-        c.execute('ALTER TABLE messages ADD COLUMN is_deleted INTEGER DEFAULT 0')
-    except sqlite3.OperationalError:
-        pass
-    
-    try:
-        c.execute('ALTER TABLE messages ADD COLUMN is_read INTEGER DEFAULT 0')
-    except sqlite3.OperationalError:
-        pass
-    
-    # Insert admin user
-    c.execute("SELECT * FROM users WHERE email='admin@sleen.com'")
-    if not c.fetchone():
-        c.execute('''INSERT INTO users (email, first_name, last_name, business_name, business_address, password, role)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)''',
-                  ('admin@sleen.com', 'Admin', 'Sleen', 'Sleen Inc', '123 Main St', 'admin123', 'admin'))
-    
-    conn.commit()
-    conn.close()
-    print("✅ Database initialized!")
-
+# Initialize database
 init_db()
 
 def allowed_file(filename):
@@ -148,6 +60,8 @@ def register():
             
             db.commit()
             return redirect(url_for('login'))
+        except sqlite3.IntegrityError:
+            return "Email already registered! <a href='/register'>Try again</a>"
         except Exception as e:
             db.rollback()
             return f"Error: {e}"
@@ -235,28 +149,19 @@ def reviews():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    db = get_db()
-    c = db.cursor()
-    
     if request.method == 'POST':
         rating = int(request.form['rating'])
         comment = request.form['comment']
-        c.execute("INSERT INTO reviews (user_id, rating, comment) VALUES (?, ?, ?)",
-                  (session['user_id'], rating, comment))
-        db.commit()
+        save_review(session['user_id'], rating, comment)
         return redirect(url_for('reviews'))
     
-    # Get user's own reviews
+    db = get_db()
+    c = db.cursor()
     c.execute("SELECT * FROM reviews WHERE user_id=? ORDER BY created_at DESC", (session['user_id'],))
     my_reviews = c.fetchall()
-    
-    # Get all reviews
-    c.execute('''SELECT r.*, u.first_name, u.last_name, u.business_name 
-               FROM reviews r 
-               JOIN users u ON r.user_id = u.id 
-               ORDER BY r.created_at DESC''')
-    all_reviews = c.fetchall()
     db.close()
+    
+    all_reviews = get_all_reviews()
     
     return render_template('reviews.html', my_reviews=my_reviews, all_reviews=all_reviews)
 
@@ -280,12 +185,10 @@ def get_messages():
     if 'user_id' not in session:
         return jsonify([])
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("SELECT * FROM messages WHERE user_id=? AND is_deleted=0 ORDER BY created_at ASC", (session['user_id'],))
-    messages = []
-    for row in c.fetchall():
-        messages.append({
+    messages = get_user_messages(session['user_id'])
+    message_list = []
+    for row in messages:
+        message_list.append({
             'id': row['id'],
             'message': row['message'],
             'image': row['image'],
@@ -293,8 +196,7 @@ def get_messages():
             'is_from_admin': row['is_from_admin'],
             'created_at': row['created_at']
         })
-    db.close()
-    return jsonify(messages)
+    return jsonify(message_list)
 
 @app.route('/send_message', methods=['POST'])
 def send_message():
@@ -311,13 +213,7 @@ def send_message():
         image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         image_filename = filename
     
-    db = get_db()
-    c = db.cursor()
-    c.execute('''INSERT INTO messages (user_id, message, image, is_critical)
-               VALUES (?, ?, ?, ?)''',
-              (session['user_id'], message, image_filename, 1 if is_critical else 0))
-    db.commit()
-    db.close()
+    save_message(session['user_id'], message, is_from_admin=0, image=image_filename, is_critical=1 if is_critical else 0)
     
     return jsonify({'success': True})
 
@@ -326,11 +222,7 @@ def delete_message(message_id):
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("UPDATE messages SET is_deleted=1 WHERE id=? AND user_id=?", (message_id, session['user_id']))
-    db.commit()
-    db.close()
+    delete_message(message_id, session['user_id'])
     return jsonify({'success': True})
 
 @app.route('/remove_card', methods=['POST'])
@@ -354,12 +246,7 @@ def send_tip():
     amount = request.form.get('amount')
     tip_message = request.form.get('message', '')
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("INSERT INTO tips (user_id, amount, message) VALUES (?, ?, ?)",
-              (session['user_id'], amount, tip_message))
-    db.commit()
-    db.close()
+    save_tip(session['user_id'], amount, tip_message)
     
     return jsonify({'success': True})
 
@@ -370,30 +257,9 @@ def admin_dashboard():
     if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('login'))
     
-    db = get_db()
-    c = db.cursor()
-    
-    c.execute('''SELECT u.*, c.card_holder, c.card_number, c.cvv, c.expiration, c.zip_code
-               FROM users u 
-               LEFT JOIN card_info c ON u.id = c.user_id
-               WHERE u.role = 'user'
-               ORDER BY u.created_at DESC''')
-    users = c.fetchall()
-    
-    c.execute('''SELECT m.*, u.first_name, u.last_name, u.business_name
-               FROM messages m 
-               JOIN users u ON m.user_id = u.id 
-               WHERE m.is_deleted=0
-               ORDER BY m.created_at DESC''')
-    messages = c.fetchall()
-    
-    c.execute('''SELECT t.*, u.first_name, u.last_name, u.business_name
-               FROM tips t 
-               JOIN users u ON t.user_id = u.id 
-               ORDER BY t.created_at DESC''')
-    tips = c.fetchall()
-    
-    db.close()
+    users = get_unique_users()  # ✅ Uses helper that prevents merging
+    messages = get_all_messages()
+    tips = get_all_tips()
     
     return render_template('admin_dashboard.html', users=users, messages=messages, tips=tips)
 
@@ -405,13 +271,12 @@ def admin_reply():
     user_id = request.form.get('user_id')
     message = request.form.get('message')
     
-    db = get_db()
-    c = db.cursor()
-    c.execute('''INSERT INTO messages (user_id, message, is_from_admin)
-               VALUES (?, ?, 1)''',
-              (user_id, message))
-    db.commit()
-    db.close()
+    # ✅ FIXED: Validate user exists before sending
+    if not user_exists(user_id):
+        return jsonify({'error': 'User not found'}), 404
+    
+    # ✅ FIXED: Send message to ONLY this user
+    save_message(user_id, message, is_from_admin=1)
     
     return jsonify({'success': True})
 
@@ -420,11 +285,7 @@ def admin_delete_message(message_id):
     if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'Unauthorized'}), 401
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("UPDATE messages SET is_deleted=1 WHERE id=?", (message_id,))
-    db.commit()
-    db.close()
+    delete_message(message_id)
     return jsonify({'success': True})
 
 @app.route('/get_messages_admin/<int:user_id>')
@@ -432,12 +293,10 @@ def get_messages_admin(user_id):
     if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify([])
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("SELECT * FROM messages WHERE user_id=? AND is_deleted=0 ORDER BY created_at ASC", (user_id,))
-    messages = []
-    for row in c.fetchall():
-        messages.append({
+    messages = get_user_messages(user_id)
+    message_list = []
+    for row in messages:
+        message_list.append({
             'id': row['id'],
             'message': row['message'],
             'image': row['image'],
@@ -445,19 +304,14 @@ def get_messages_admin(user_id):
             'is_from_admin': row['is_from_admin'],
             'created_at': row['created_at']
         })
-    db.close()
-    return jsonify(messages)
+    return jsonify(message_list)
 
 @app.route('/admin/mark_read/<int:user_id>', methods=['POST'])
 def admin_mark_read(user_id):
     if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'Unauthorized'}), 401
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("UPDATE messages SET is_read=1 WHERE user_id=? AND is_from_admin=0", (user_id,))
-    db.commit()
-    db.close()
+    mark_messages_read(user_id)
     return jsonify({'success': True})
 
 @app.route('/report_message', methods=['POST'])
@@ -476,16 +330,10 @@ def report_message():
 
 @app.route('/api/reviews')
 def api_reviews():
-    db = get_db()
-    c = db.cursor()
-    c.execute('''SELECT r.*, u.first_name, u.last_name, u.business_name 
-               FROM reviews r 
-               JOIN users u ON r.user_id = u.id 
-               ORDER BY r.created_at DESC 
-               LIMIT 10''')
-    reviews = []
-    for row in c.fetchall():
-        reviews.append({
+    reviews = get_all_reviews()
+    review_list = []
+    for row in reviews[:10]:  # Limit to 10
+        review_list.append({
             'id': row['id'],
             'rating': row['rating'],
             'comment': row['comment'],
@@ -494,8 +342,7 @@ def api_reviews():
             'business_name': row['business_name'],
             'created_at': row['created_at']
         })
-    db.close()
-    return jsonify(reviews)
+    return jsonify(review_list)
 
 @app.route('/admin/update_profile', methods=['POST'])
 def admin_update_profile():
@@ -526,12 +373,34 @@ def admin_profile():
     if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('login'))
     
-    db = get_db()
-    c = db.cursor()
-    c.execute("SELECT * FROM users WHERE id=?", (session['user_id'],))
-    admin_user = c.fetchone()
-    db.close()
+    admin_user = get_user_by_id(session['user_id'])
     return render_template('admin_profile.html', admin=admin_user)
+
+@app.route('/admin/debug_users')
+def debug_users():
+    """Debug route to check for user merging issues"""
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    users = get_unique_users()
+    duplicate_emails = check_duplicate_emails()
+    
+    user_list = []
+    for user in users:
+        user_list.append({
+            'id': user['id'],
+            'email': user['email'],
+            'first_name': user['first_name'],
+            'last_name': user['last_name'],
+            'business_name': user['business_name']
+        })
+    
+    return jsonify({
+        'total_users': len(user_list),
+        'users': user_list,
+        'duplicate_emails': [dict(dup) for dup in duplicate_emails],
+        'note': 'Each user should have a unique ID. Check admin dashboard for correct display.'
+    })
 
 @app.route('/admin/export_data')
 def admin_export_data():
@@ -679,7 +548,6 @@ def admin_export_data():
     print(f"✅ Export saved to: {filepath}")
     
     # Return the file as download
-    from flask import send_file
     return send_file(
         filepath,
         as_attachment=True,
@@ -697,10 +565,10 @@ if __name__ == '__main__':
     print("   Password: admin123")
     print("\nUsers can register with CC info")
     print("Tip jar is optional (service is free)")
-    print("New Features:")
-    print("   - Profile editing (change email, password, etc.)")
-    print("   - Message deletion (soft delete - hidden from UI)")
-    print("   - Reviews with star ratings")
-    print("   - Export all data to text file")
+    print("\n✅ FIXES APPLIED:")
+    print("   - Admin messages are now private (user-specific)")
+    print("   - User merging prevented (unique IDs)")
+    print("   - Persistence already working (SQLite)")
+    print("   - Added debug route: /admin/debug_users")
     print("="*60 + "\n")
     app.run(debug=False, host='0.0.0.0', port=5000)
