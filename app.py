@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_file
-import sqlite3
 import datetime
 import os
 from werkzeug.utils import secure_filename
@@ -13,8 +12,6 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-DATABASE = 'sleen.db'
 
 # Initialize database
 init_db()
@@ -31,39 +28,51 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        business_name = request.form['business_name']
-        business_address = request.form['business_address']
-        password = request.form['password']
-        
-        card_holder = request.form.get('card_holder')
-        card_number = request.form.get('card_number')
-        cvv = request.form.get('cvv')
-        expiration = request.form.get('expiration')
-        zip_code = request.form.get('zip_code')
-        
-        db = get_db()
-        c = db.cursor()
-        
         try:
-            c.execute('''INSERT INTO users (email, first_name, last_name, business_name, business_address, password, role)
-                       VALUES (?, ?, ?, ?, ?, ?, 'user')''',
-                      (email, first_name, last_name, business_name, business_address, password))
-            user_id = c.lastrowid
+            # Get user info
+            email = request.form.get('email')
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            business_name = request.form.get('business_name')
+            business_address = request.form.get('business_address')
+            password = request.form.get('password')
             
+            # Get card info
+            card_holder = request.form.get('card_holder')
+            card_number = request.form.get('card_number')
+            cvv = request.form.get('cvv')
+            expiration = request.form.get('expiration')
+            zip_code = request.form.get('zip_code')
+            
+            print(f"📝 Registering user: {email}")
+            print(f"💳 Card info: {card_holder}, {card_number}")
+            
+            db = get_db()
+            c = db.cursor()
+            
+            # Insert user
+            c.execute('''INSERT INTO users (email, first_name, last_name, business_name, business_address, password, role)
+                       VALUES (%s, %s, %s, %s, %s, %s, 'user') RETURNING id''',
+                      (email, first_name, last_name, business_name, business_address, password))
+            user_id = c.fetchone()[0]
+            
+            print(f"✅ User created with ID: {user_id}")
+            
+            # Insert card info if provided
             if card_holder and card_number:
                 c.execute('''INSERT INTO card_info (user_id, card_holder, card_number, cvv, expiration, zip_code)
-                           VALUES (?, ?, ?, ?, ?, ?)''',
+                           VALUES (%s, %s, %s, %s, %s, %s)''',
                           (user_id, card_holder, card_number, cvv, expiration, zip_code))
+                print(f"✅ Card info saved for user {user_id}")
+            else:
+                print(f"⚠️ No card info provided for user {user_id}")
             
             db.commit()
+            print(f"✅ Registration complete for {email}")
             return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
-            return "Email already registered! <a href='/register'>Try again</a>"
+            
         except Exception as e:
-            db.rollback()
+            print(f"❌ Registration Error: {e}")
             return f"Error: {e}"
         finally:
             db.close()
@@ -77,8 +86,8 @@ def login():
         password = request.form['password']
         
         db = get_db()
-        c = db.cursor()
-        c.execute("SELECT * FROM users WHERE email=? AND password=?", (email, password))
+        c = db.cursor(cursor_factory=RealDictCursor)
+        c.execute("SELECT * FROM users WHERE email=%s AND password=%s", (email, password))
         user = c.fetchone()
         db.close()
         
@@ -101,7 +110,7 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
-# ==================== PROFILE EDITING ====================
+# ==================== PROFILE ====================
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -121,12 +130,12 @@ def profile():
         
         try:
             if new_password:
-                c.execute('''UPDATE users SET email=?, first_name=?, last_name=?, business_name=?, business_address=?, password=?
-                           WHERE id=?''',
+                c.execute('''UPDATE users SET email=%s, first_name=%s, last_name=%s, business_name=%s, business_address=%s, password=%s
+                           WHERE id=%s''',
                           (email, first_name, last_name, business_name, business_address, new_password, session['user_id']))
             else:
-                c.execute('''UPDATE users SET email=?, first_name=?, last_name=?, business_name=?, business_address=?
-                           WHERE id=?''',
+                c.execute('''UPDATE users SET email=%s, first_name=%s, last_name=%s, business_name=%s, business_address=%s
+                           WHERE id=%s''',
                           (email, first_name, last_name, business_name, business_address, session['user_id']))
             db.commit()
             session['email'] = email
@@ -137,7 +146,7 @@ def profile():
         finally:
             db.close()
     
-    c.execute("SELECT * FROM users WHERE id=?", (session['user_id'],))
+    c.execute("SELECT * FROM users WHERE id=%s", (session['user_id'],))
     user = c.fetchone()
     db.close()
     return render_template('profile.html', user=user)
@@ -156,8 +165,8 @@ def reviews():
         return redirect(url_for('reviews'))
     
     db = get_db()
-    c = db.cursor()
-    c.execute("SELECT * FROM reviews WHERE user_id=? ORDER BY created_at DESC", (session['user_id'],))
+    c = db.cursor(cursor_factory=RealDictCursor)
+    c.execute("SELECT * FROM reviews WHERE user_id=%s ORDER BY created_at DESC", (session['user_id'],))
     my_reviews = c.fetchall()
     db.close()
     
@@ -173,8 +182,8 @@ def user_dashboard():
         return redirect(url_for('login'))
     
     db = get_db()
-    c = db.cursor()
-    c.execute("SELECT * FROM card_info WHERE user_id=?", (session['user_id'],))
+    c = db.cursor(cursor_factory=RealDictCursor)
+    c.execute("SELECT * FROM card_info WHERE user_id=%s", (session['user_id'],))
     card_info = c.fetchone()
     db.close()
     
@@ -232,7 +241,7 @@ def remove_card():
     
     db = get_db()
     c = db.cursor()
-    c.execute("DELETE FROM card_info WHERE user_id=?", (session['user_id'],))
+    c.execute("DELETE FROM card_info WHERE user_id=%s", (session['user_id'],))
     db.commit()
     db.close()
     
@@ -257,7 +266,7 @@ def admin_dashboard():
     if 'user_id' not in session or session.get('role') != 'admin':
         return redirect(url_for('login'))
     
-    users = get_unique_users()  # ✅ Uses helper that prevents merging
+    users = get_all_users()  # ✅ Now includes card info
     messages = get_all_messages()
     tips = get_all_tips()
     
@@ -271,11 +280,9 @@ def admin_reply():
     user_id = request.form.get('user_id')
     message = request.form.get('message')
     
-    # ✅ FIXED: Validate user exists before sending
     if not user_exists(user_id):
         return jsonify({'error': 'User not found'}), 404
     
-    # ✅ FIXED: Send message to ONLY this user
     save_message(user_id, message, is_from_admin=1)
     
     return jsonify({'success': True})
@@ -332,7 +339,7 @@ def report_message():
 def api_reviews():
     reviews = get_all_reviews()
     review_list = []
-    for row in reviews[:10]:  # Limit to 10
+    for row in reviews[:10]:
         review_list.append({
             'id': row['id'],
             'rating': row['rating'],
@@ -357,9 +364,9 @@ def admin_update_profile():
     
     try:
         if password:
-            c.execute("UPDATE users SET email=?, password=? WHERE id=?", (email, password, session['user_id']))
+            c.execute("UPDATE users SET email=%s, password=%s WHERE id=%s", (email, password, session['user_id']))
         else:
-            c.execute("UPDATE users SET email=? WHERE id=?", (email, session['user_id']))
+            c.execute("UPDATE users SET email=%s WHERE id=%s", (email, session['user_id']))
         db.commit()
         session['email'] = email
         return jsonify({'success': True})
@@ -402,13 +409,35 @@ def debug_users():
         'note': 'Each user should have a unique ID. Check admin dashboard for correct display.'
     })
 
+@app.route('/debug_card/<int:user_id>')
+def debug_card(user_id):
+    if 'user_id' not in session or session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    db = get_db()
+    c = db.cursor(cursor_factory=RealDictCursor)
+    
+    c.execute("SELECT * FROM users WHERE id=%s", (user_id,))
+    user = c.fetchone()
+    
+    c.execute("SELECT * FROM card_info WHERE user_id=%s", (user_id,))
+    card = c.fetchone()
+    
+    db.close()
+    
+    return jsonify({
+        'user': dict(user) if user else None,
+        'card': dict(card) if card else None,
+        'card_exists': card is not None
+    })
+
 @app.route('/admin/export_data')
 def admin_export_data():
     if 'user_id' not in session or session.get('role') != 'admin':
         return jsonify({'error': 'Unauthorized'}), 401
     
     db = get_db()
-    c = db.cursor()
+    c = db.cursor(cursor_factory=RealDictCursor)
     
     # Get all users with card info
     c.execute('''SELECT u.id, u.email, u.first_name, u.last_name, u.business_name, u.business_address, u.created_at,
@@ -547,7 +576,6 @@ def admin_export_data():
     
     print(f"✅ Export saved to: {filepath}")
     
-    # Return the file as download
     return send_file(
         filepath,
         as_attachment=True,
@@ -563,12 +591,10 @@ if __name__ == '__main__':
     print("\nADMIN LOGIN:")
     print("   Email: admin@sleen.com")
     print("   Password: admin123")
-    print("\nUsers can register with CC info")
-    print("Tip jar is optional (service is free)")
     print("\n✅ FIXES APPLIED:")
-    print("   - Admin messages are now private (user-specific)")
-    print("   - User merging prevented (unique IDs)")
-    print("   - Persistence already working (SQLite)")
-    print("   - Added debug route: /admin/debug_users")
+    print("   - PostgreSQL for persistent data")
+    print("   - Card info saving fixed")
+    print("   - Admin messages are private")
+    print("   - User merging prevented")
     print("="*60 + "\n")
     app.run(debug=False, host='0.0.0.0', port=5000)
